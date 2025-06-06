@@ -1,0 +1,3 @@
+[submodule "documenter"]
+	path = documenter
+	url = https://github.com/squared-studio/documenter.git
