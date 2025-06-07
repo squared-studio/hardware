@@ -133,6 +133,12 @@ simulate_gui:
 	@make -s common_sim_checks
 	@cd build; xsim $(TOP) -f xsim_args -gui --nolog
 
+.PHONY: coverage_report
+coverage_report:
+	@echo -e "\033[3;35mGenerating Coverage Report $(TOP)...\033[0m"
+	@cd build; xcrg -report_format html --nolog -cov_db_name work.$(TOP)
+	@echo -e "\033[3;35mGenerated Coverage Report $(TOP)\033[0m"
+
 .PHONY: testbench
 testbench:
 ifeq ($(FILE),)
