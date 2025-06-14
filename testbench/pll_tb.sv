@@ -2,20 +2,20 @@ module pll_tb;
   // Define the width of the reference divider input
   localparam int REF_DEV_WIDTH = 4;
   // Define the width of the feedback divider input
-  localparam int FB_DEV_WIDTH = 8;
+  localparam int FB_DIV_WIDTH = 8;
 
   // Declare the signals used in the testbench
   logic                     arst_ni;  // Asynchronous reset input (active low)
   logic                     clk_ref_i;  // Reference clock input
   logic [REF_DEV_WIDTH-1:0] refdiv_i;  // Reference divider input
-  logic [ FB_DEV_WIDTH-1:0] fbdiv_i;  // Feedback divider input
+  logic [ FB_DIV_WIDTH-1:0] fbdiv_i;  // Feedback divider input
   logic                     clk_o;  // PLL output clock
   logic                     locked_o;  // PLL lock indicator
 
   // Instantiate the PLL module
   pll #(
       .REF_DEV_WIDTH(4),  // Pass the reference divider width parameter
-      .FB_DEV_WIDTH (8)   // Pass the feedback divider width parameter
+      .FB_DIV_WIDTH (8)   // Pass the feedback divider width parameter
   ) u_pll (
       .arst_ni,  // Connect the asynchronous reset input
       .clk_ref_i,  // Connect the reference clock input

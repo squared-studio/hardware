@@ -7,12 +7,12 @@
 
 module pll #(
     parameter int REF_DEV_WIDTH = 4,  // Width of the reference divider register
-    parameter int FB_DEV_WIDTH  = 8   // Width of the feedback divider register
+    parameter int FB_DIV_WIDTH  = 8   // Width of the feedback divider register
 ) (
     input logic                     arst_ni,    // Asynchronous reset, active low
     input logic                     clk_ref_i,  // Reference clock input
     input logic [REF_DEV_WIDTH-1:0] refdiv_i,   // Reference divider value
-    input logic [ FB_DEV_WIDTH-1:0] fbdiv_i,    // Feedback divider value
+    input logic [ FB_DIV_WIDTH-1:0] fbdiv_i,    // Feedback divider value
 
     output logic clk_o,    // PLL output clock
     output logic locked_o  // Lock indicator output
@@ -28,7 +28,7 @@ module pll #(
   logic                     freq_decr;  // Frequency decrease signal from phase detector
   logic                     stable_cfg;  // Indicates if the divider configurations are stable
   logic [REF_DEV_WIDTH-1:0] refdiv_q;  // Registered value of the reference divider
-  logic [ FB_DEV_WIDTH-1:0] fbdiv_q;  // Registered value of the feedback divider
+  logic [ FB_DIV_WIDTH-1:0] fbdiv_q;  // Registered value of the feedback divider
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   //-ASSIGNMENTS
@@ -52,7 +52,7 @@ module pll #(
 
   // Feedback clock divider instantiation
   clk_div #(
-      .DIV_WIDTH(FB_DEV_WIDTH)
+      .DIV_WIDTH(FB_DIV_WIDTH)
   ) u_fb_dev (
       .arst_ni(arst_ni),        // Asynchronous reset input
       .div_i  (fbdiv_i),        // Divider value input
