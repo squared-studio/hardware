@@ -22,7 +22,6 @@ module clk_div #(
   logic [DIV_WIDTH-1:0] counter_q;  // Current value of the counter
   logic [DIV_WIDTH-1:0] counter_n;  // Next value of the counter
   logic                 toggle_en;  // Enable signal to toggle the output clock
-  logic                 clk_no;  // Inverted clock output (not used)
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   //-ASSIGNMENTS
