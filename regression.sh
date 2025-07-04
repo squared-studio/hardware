@@ -41,6 +41,7 @@ touch temp_ci_issues
 
 grep -s -r "TEST FAILED" ./log | sed "s/.*\.log://g" >> temp_ci_issues
 grep -s -r "ERROR:" ./log | sed "s/.*\.log://g" >> temp_ci_issues
+grep -s -r "Fatal:" ./log | sed "s/.*\.log://g" >> temp_ci_issues
 
 echo -e ""
 echo -e "\033[1;36m___________________________ CI REPORT ___________________________\033[0m"
@@ -48,6 +49,7 @@ grep -s -r "TEST PASSED" ./log | sed "s/.*\.log://g"
 grep -s -r "TEST FAILED" ./log | sed "s/.*\.log://g"
 grep -s -r "WARNING:" ./log | sed "s/.*\.log://g"
 grep -s -r "ERROR:" ./log | sed "s/.*\.log://g"
+grep -s -r "Fatal:" ./log | sed "s/.*\.log://g"
 
 echo -e "\n"
 echo -e "\033[1;36m____________________________ SUMMARY ____________________________\033[0m"
@@ -59,4 +61,6 @@ echo -n "WARNING : "
 grep -s -r "WARNING:" ./log | sed "s/.*\.log://g" | wc -l
 echo -n "ERROR   : "
 grep -s -r "ERROR:" ./log | sed "s/.*\.log://g" | wc -l
+echo -n "Fatal   : "
+grep -s -r "Fatal:" ./log | sed "s/.*\.log://g" | wc -l
 echo -e ""
