@@ -28,6 +28,26 @@ SHA_ARGS += $$(find testbench/ -type f)
 GIT_UNAME := $(shell git config user.name)
 GIT_UMAIL := $(shell git config user.email)
 
+DBG ?= 0
+ifeq ($(DBG), 1)
+	XELAB_FLAGS += --debug all
+endif
+
+COV ?= 0
+CC_COV ?= 0
+
+ifeq ($(COV), 1)
+ifeq ($(CC_COV), 1)
+	XELAB_FLAGS += --cc_type -sbc
+endif
+endif
+
+ifeq ($(COV), 1)
+ifeq ($(CC_COV), 1)
+	XCRG_FLAGS += -cc_db $(TOP) -cc_fullfile -cc_report cc_report
+endif
+endif
+
 ####################################################################################################
 # PACKAGE LISTS
 ####################################################################################################
@@ -109,7 +129,7 @@ ENV_BUILD:
 	@cd build; xvlog -sv -f flist --nolog $(XVLOG_DEFS) | $(GREP_EW)
 	@echo -e "\033[3;35mCompiled\033[0m"
 	@echo -e "\033[3;35mElaborating $(TOP)...\033[0m"
-	@cd build; xelab $(TOP) --O0 --incr --nolog --timescale 1ns/1ps --debug wave | $(GREP_EW)
+	@cd build; xelab $(TOP) --O0 --incr --nolog --timescale 1ns/1ps $(XELAB_FLAGS) | $(GREP_EW)
 	@echo -e "\033[3;35mElaborated $(TOP)\033[0m"
 	@sha256sum.exe ${SHA_ARGS} > build/build_$(TOP)
 
@@ -126,18 +146,26 @@ simulate:
 	@$(eval log_file_name := $(shell echo "$(TOP)_$(TEST).txt" | sed "s/\//___/g"))
 	@cd build; xsim $(TOP) -f xsim_args -runall -log ../log/$(log_file_name)
 	@echo -e "\033[3;35mSimulated $(TOP) $(TEST)\033[0m"
+ifeq ($(COV), 1)
+	@make -s coverage_reports
+	@echo -e "\033[3;35mGenerating Coverage Report $(TOP)...\033[0m"
+	@cd build; xcrg $(XCRG_FLAGS) -report_format html --nolog -cov_db_name work.$(TOP)
+	@echo -e "\033[3;35mGenerated Coverage Report $(TOP)\033[0m"
+	@mv build/xsim_coverage_report/functionalCoverageReport coverage_reports/$(TOP)_$(TEST)_fc
+ifeq ($(CC_COV), 1)
+	@mv build/cc_report/codeCoverageReport coverage_reports/$(TOP)_$(TEST)_cc
+endif
+endif
+
+coverage_reports:
+	@mkdir -p coverage_reports
+	@echo "*" > coverage_reports/.gitignore
 
 .PHONY: simulate_gui
 simulate_gui:
 	@make -s CHK_BUILD TOP=$(TOP)
 	@make -s common_sim_checks
 	@cd build; xsim $(TOP) -f xsim_args -gui --nolog
-
-.PHONY: coverage_report
-coverage_report:
-	@echo -e "\033[3;35mGenerating Coverage Report $(TOP)...\033[0m"
-	@cd build; xcrg -report_format html --nolog -cov_db_name work.$(TOP)
-	@echo -e "\033[3;35mGenerated Coverage Report $(TOP)\033[0m"
 
 .PHONY: testbench
 testbench:
