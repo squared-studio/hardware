@@ -1,3 +1,5 @@
+export SHELL=/bin/bash
+
 ####################################################################################################
 # VARIABLES
 ####################################################################################################
@@ -113,7 +115,7 @@ CHK_BUILD:
 
 .PHONY: match_sha
 match_sha:
-	@sha256sum.exe ${SHA_ARGS} > build/build_$(TOP)_new
+	@sha256sum ${SHA_ARGS} > build/build_$(TOP)_new
 	@diff build/build_$(TOP)_new build/build_$(TOP) || make -s ENV_BUILD TOP=$(TOP)
 
 .PHONY: ENV_BUILD
@@ -131,7 +133,7 @@ ENV_BUILD:
 	@echo -e "\033[3;35mElaborating $(TOP)...\033[0m"
 	@cd build; xelab $(TOP) --O0 --incr --nolog --timescale 1ns/1ps $(XELAB_FLAGS) | $(GREP_EW)
 	@echo -e "\033[3;35mElaborated $(TOP)\033[0m"
-	@sha256sum.exe ${SHA_ARGS} > build/build_$(TOP)
+	@sha256sum ${SHA_ARGS} > build/build_$(TOP)
 
 .PHONY: common_sim_checks
 common_sim_checks:
