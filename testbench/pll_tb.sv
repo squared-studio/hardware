@@ -51,15 +51,15 @@ module pll_tb;
     join_none
 
     // Simulation control and test sequence
-    #4us;
-    refdiv_i <= 2;  // Set the reference divider to 2
-    #4us;
-    fbdiv_i <= 2;  // Set the feedback divider to 2
-    #4us;
-    fbdiv_i <= 4;  // Set the feedback divider to 4
-    #4us;
+    #25us;
+    refdiv_i <= 8;  // Set the reference divider to 2
+    #25us;
+    fbdiv_i <= 16;  // Set the feedback divider to 2
+    #25us;
+    fbdiv_i <= 128;  // Set the feedback divider to 4
+    #25us;
     refdiv_i <= 1;  // Set the reference divider to 1
-    #4us;
+    #25us;
     $finish;  // End the simulation
   end
 endmodule

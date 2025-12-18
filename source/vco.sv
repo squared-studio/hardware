@@ -81,8 +81,8 @@ module vco (
   end
 
   // Periodic Trigger Event
-  always #10ps begin
-    ->update;  // Trigger the update event every 10ps
+  always #25ps begin
+    ->update;
   end
 
   // Clock Generation Logic
@@ -95,9 +95,9 @@ module vco (
       clk_half_period <= 1us;  // Initialize clock half period to 1us
     end else begin  // If reset is de-asserted
       if (freq_incr_i & ~freq_decr_i)
-        clk_half_period = clk_half_period - 10ps; // Decrement clock half period if only increment is active
+        clk_half_period = clk_half_period - 1ps; // Decrement clock half period if only increment is active
       if (freq_decr_i & ~freq_incr_i)
-        clk_half_period = clk_half_period + 10ps; // Increment clock half period if only decrement is active
+        clk_half_period = clk_half_period + 1ps; // Increment clock half period if only decrement is active
 
       if (clk_half_period < MIN_CLK_HALF_PERIOD)
         clk_half_period = MIN_CLK_HALF_PERIOD;  // Limit clock half period to minimum value
