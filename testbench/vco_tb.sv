@@ -1,8 +1,8 @@
 module vco_tb;
 
-  parameter int MIN_FREQ_HZ = 100E3;
-  parameter int MAX_FREQ_HZ = 10E9;
-  parameter int RESOLUTION_BITS = 8;
+  parameter real MIN_FREQ_HZ = 100E3;
+  parameter real MAX_FREQ_HZ = 10E9;
+  parameter int RESOLUTION_BITS = 30;
 
   logic [RESOLUTION_BITS-1:0] voltage_ctrl_i;
   logic                       clk_o;
