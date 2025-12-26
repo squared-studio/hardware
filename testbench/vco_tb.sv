@@ -28,21 +28,26 @@ module vco_tb;
 
   task static get_frequency(input real target_freq);
     real delta;
+    int  delta_int;
     do begin
       if (current_freq < target_freq) begin
         delta = target_freq - current_freq;
-        if (voltage_ctrl_i != '1) voltage_ctrl_i <= voltage_ctrl_i + 1;
+        if (delta < 0) $display("Delta negative!");
+        delta_int = delta;
+        if (voltage_ctrl_i != '1) voltage_ctrl_i <= voltage_ctrl_i + (1 + delta_int / 25);
       end else if (current_freq > target_freq) begin
         delta = current_freq - target_freq;
-        if (voltage_ctrl_i != '0) voltage_ctrl_i <= voltage_ctrl_i - 1;
+        if (delta < 0) $display("Delta negative!");
+        delta_int = delta;
+        if (voltage_ctrl_i != '0) voltage_ctrl_i <= voltage_ctrl_i - (1 + delta_int / 25);
       end else begin
         delta = 0;
       end
-      #10ps;
-    end while (delta > 100);
-    #1us;
-    $display("Reached target frequency: %0f (%0f) Hz with control voltage: %0d", current_freq,
+      @(posedge clk_o);
+    end while ((delta*1000) > target_freq);
+    $display("Reached target frequency: %0.2f (%0.2f) Hz with control voltage: %0d", current_freq,
              target_freq, voltage_ctrl_i);
+    repeat (20) @(posedge clk_o);
   endtask
 
   initial begin
@@ -57,11 +62,15 @@ module vco_tb;
           $display("Time: %0d us", i);
         end
       end
+      // begin
+      //   #250us;
+      //   $display("Timeout reached");
+      //   $finish;
+      // end
     join_none
     voltage_ctrl_i <= 0;
-    repeat (5) @(posedge clk_o);
-    get_frequency(200E3);
-    #100us;
+    repeat (2) @(posedge clk_o);
+    repeat (100) get_frequency($urandom_range(32'd100_000, 32'd2_000_000_000));
     $finish;
   end
 
