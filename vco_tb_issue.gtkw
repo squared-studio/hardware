@@ -1,0 +1,32 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Fri Dec 26 09:52:07 2025
+[*]
+[dumpfile] "build/vco_tb.vcd"
+[dumpfile_mtime] "Fri Dec 26 09:52:07 2025"
+[dumpfile_size] 255316852
+[savefile] "vco_tb_issue.gtkw"
+[timestart] 0
+[size] 1920 1001
+[pos] -1 -1
+*-24.271284 46118830 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] vco_tb.
+[sst_width] 278
+[signals_width] 248
+[sst_expanded] 1
+[sst_vpaned_height] 297
+@28
+vco_tb.clk_o
+vco_tb.current_freq
+vco_tb.get_frequency.target_freq
+vco_tb.get_frequency.delta
+@23
+vco_tb.voltage_ctrl_i[29:0]
+@8022
+vco_tb.voltage_ctrl_i[29:0]
+@20000
+-
+-
+-
+[pattern_trace] 1
+[pattern_trace] 0
