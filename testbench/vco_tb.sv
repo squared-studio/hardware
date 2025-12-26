@@ -31,10 +31,10 @@ module vco_tb;
     do begin
       if (current_freq < target_freq) begin
         delta = target_freq - current_freq;
-        if (voltage_ctrl_i != '1) voltage_ctrl_i = voltage_ctrl_i + 1;
+        if (voltage_ctrl_i != '1) voltage_ctrl_i <= voltage_ctrl_i + 1;
       end else if (current_freq > target_freq) begin
         delta = current_freq - target_freq;
-        if (voltage_ctrl_i != '0) voltage_ctrl_i = voltage_ctrl_i - 1;
+        if (voltage_ctrl_i != '0) voltage_ctrl_i <= voltage_ctrl_i - 1;
       end else begin
         delta = 0;
       end
