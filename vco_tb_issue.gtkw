@@ -1,25 +1,24 @@
 [*]
 [*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
-[*] Fri Dec 26 17:51:24 2025
+[*] Fri Dec 26 19:13:25 2025
 [*]
 [dumpfile] "/home/foez/Documents/hardware/build/vco_tb.vcd"
-[dumpfile_mtime] "Fri Dec 26 17:47:03 2025"
-[dumpfile_size] 37701356
+[dumpfile_mtime] "Fri Dec 26 19:03:41 2025"
+[dumpfile_size] 842808
 [savefile] "/home/foez/Documents/hardware/vco_tb_issue.gtkw"
-[timestart] 19169200
+[timestart] 0
 [size] 1920 1001
-[pos] -27 -24
-*-14.876661 19313161 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -1
+*-23.981390 43078000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] vco_tb.
+[treeopen] vco_tb.u_vco.
 [sst_width] 278
 [signals_width] 310
 [sst_expanded] 1
 [sst_vpaned_height] 297
 @28
 vco_tb.clk_o
-@29
 vco_tb.current_freq
-@28
 vco_tb.get_frequency.target_freq
 vco_tb.get_frequency.delta
 @24
@@ -31,5 +30,11 @@ vco_tb.voltage_ctrl_i[29:0]
 -
 -
 -
+@28
+vco_tb.get_frequency.freq_incr
+vco_tb.get_frequency.freq_decr
+vco_tb.u_vco.last_tick_time
+@29
+vco_tb.u_vco.next_tick_time
 [pattern_trace] 1
 [pattern_trace] 0
