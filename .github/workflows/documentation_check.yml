@@ -1,4 +1,4 @@
-name: update_docs
+name: documentation_check
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  update_docs:
+  documentation_check:
     runs-on: [make, python]
 
     steps:
