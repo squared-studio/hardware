@@ -19,4 +19,4 @@
 |Name|Direction|Type|Dimension|Description|
 |-|-|-|-|-|
 |voltage_ctrl_i|input|logic [RESOLUTION_BITS-1:0]||Control voltage input for VCO|
-|clk_o|output|logic|| Control voltage input for VCO|
+|clk_o|output|logic||Output clock signal|

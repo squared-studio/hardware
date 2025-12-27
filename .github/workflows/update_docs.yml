@@ -1,4 +1,4 @@
-name: regression
+name: update_docs
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  regression:
+  update_docs:
     runs-on: [make, python]
 
     steps:
