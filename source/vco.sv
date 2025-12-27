@@ -3,8 +3,9 @@ module vco #(
     parameter real MAX_FREQ_HZ     = 10E9,   // 10 GHz
     parameter int  RESOLUTION_BITS = 20      // 20-bit resolution for frequency control word
 ) (
-    input  logic [RESOLUTION_BITS-1:0] voltage_ctrl_i,  // Control voltage input for VCO
-    output logic                       clk_o
+    input logic [RESOLUTION_BITS-1:0] voltage_ctrl_i,  // Control voltage input for VCO
+
+    output logic clk_o  // Output clock signal
 );
 
   realtime last_tick_time = 0.0;

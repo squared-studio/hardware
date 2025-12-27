@@ -1,0 +1,26 @@
+name: regression
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  regression:
+    runs-on: [make, python]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check docs
+        shell: bash
+        run: |
+          make update_docs
+          git diff > ___DIFF
+
+      - name: Fail if different
+        shell: bash
+        run: |
+          cat ___DIFF
+          [[ -s ___DIFF ]] && exit 1 || exit 0
