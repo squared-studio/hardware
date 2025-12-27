@@ -1,6 +1,12 @@
 export SHELL=/bin/bash
 
 ####################################################################################################
+# TOOLS
+####################################################################################################
+
+PYTHON ?= python
+
+####################################################################################################
 # VARIABLES
 ####################################################################################################
 
@@ -217,7 +223,7 @@ update_docs:
 .PHONY: gen_doc
 gen_doc:
 	@echo "Creating document for $(FILE)"
-	@python documenter/sv_documenter.py $(FILE) document/source
+	@${PYTHON} documenter/sv_documenter.py $(FILE) document/source
 	@sed -i "s/.*${LINE_1}.*/<br>**${LINE_1}**/g" document/source/$(shell basename $(FILE) | sed "s/\.sv/\.md/g")
 	@sed -i "s/.*${LINE_2}.*/<br>**${LINE_2}**/g" document/source/$(shell basename $(FILE) | sed "s/\.sv/\.md/g")
 	@sed -i "s/.*${LINE_3}.*/<br>**${LINE_3}**/g" document/source/$(shell basename $(FILE) | sed "s/\.sv/\.md/g")
