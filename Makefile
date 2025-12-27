@@ -262,3 +262,16 @@ define copyright_check_file
 	(grep -r "$(LINE_3)" $(1) > /dev/null) || (echo "$(1) >> \"$(LINE_3)\"" >> ___temp)
 	(grep -r "$(LINE_4)" $(1) > /dev/null) || (echo "$(1) >> \"$(LINE_4)\"" >> ___temp)
 endef
+
+.PHONY: verible_lint
+verible_lint:
+	@rm -rf ___LINT_ERROR
+	@$(eval list := $(shell find -name "*.v" -o -name "*.sv"))
+	@$(foreach file, $(list), verible-verilog-lint $(file) >> ___LINT_ERROR 2>&1 || true;)
+
+
+.PHONY: lint
+lint:
+	@make -s verible_lint
+	@cat ___LINT_ERROR
+	@rm -rf ___LINT_ERROR
