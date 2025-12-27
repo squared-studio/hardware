@@ -6,8 +6,7 @@
 <img src="./clk_div_top.svg">
 
 ## Description
- Write a markdown documentation for this systemverilog module:
- This file is part of squared-studio : testing
+<br>**This file is part of squared-studio : hardware**
 <br>**Copyright (c) 2025 squared-studio**
 <br>**Licensed under the MIT License**
 <br>**See LICENSE file in the repository root for full license information**

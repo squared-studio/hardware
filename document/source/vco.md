@@ -1,12 +1,15 @@
 # vco (module)
 
-### Author : 
+### Author : Foez Ahmed (foez.official@gmail.com)
 
 ## TOP IO
 <img src="./vco_top.svg">
 
 ## Description
-
+<br>**This file is part of squared-studio : hardware**
+<br>**Copyright (c) 2025 squared-studio**
+<br>**Licensed under the MIT License**
+<br>**See LICENSE file in the repository root for full license information**
 
 ## Parameters
 |Name|Type|Dimension|Default Value|Description|
