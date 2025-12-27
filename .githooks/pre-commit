@@ -1,3 +1,14 @@
 #!/bin/bash
 
 echo -n "Update Documentation? (y/n): "
+
+read answer
+
+if [[ "$answer" == "y" || "$answer" == "Y" ]]; then
+    echo "Generating documentation..."
+    # Command to generate documentation goes here
+    # For example: make docs
+    echo "Documentation updated."
+else
+    echo "Skipping documentation update."
+fi
