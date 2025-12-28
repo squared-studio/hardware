@@ -119,7 +119,7 @@ clean_full:
 CHK_BUILD:
 	@if [ ! -f build/build_$(TOP) ]; then                    \
 		echo -e "\033[3;33mEnvironment not built...\033[0m";   \
-		make -s ENV_BUILD TOP=$(TOP);                          \
+		make -s __ENV_BUILD__ TOP=$(TOP);                      \
 	else                                                     \
 		echo -e "\033[3;33mChecking sha256sum...\033[0m";      \
 		make -s match_sha TOP=$(TOP);                          \
@@ -128,11 +128,10 @@ CHK_BUILD:
 .PHONY: match_sha
 match_sha:
 	@sha256sum ${SHA_ARGS} > build/build_$(TOP)_new
-	@diff build/build_$(TOP)_new build/build_$(TOP) || make -s ENV_BUILD TOP=$(TOP)
+	@diff build/build_$(TOP)_new build/build_$(TOP) || make -s __ENV_BUILD__ TOP=$(TOP)
 
-.PHONY: ENV_BUILD
-ENV_BUILD:
-	@make -s clean
+.PHONY: __COMPILE__
+__COMPILE__:
 	@make -s build
 	@echo -e "\033[3;35mCompiling...\033[0m"
 	@echo "-i ${ROOT_DIR}/include" > build/flist
@@ -142,10 +141,19 @@ ENV_BUILD:
 	@find ${ROOT_DIR}/testbench -type f >> build/flist
 	@cd build; xvlog -sv -f flist --nolog $(XVLOG_DEFS) | $(GREP_EW)
 	@echo -e "\033[3;35mCompiled\033[0m"
+
+.PHONY: __ELABORATE__
+__ELABORATE__:
 	@echo -e "\033[3;35mElaborating $(TOP)...\033[0m"
 	@cd build; xelab $(TOP) --O0 --incr --nolog --timescale 1ns/1ps $(XELAB_FLAGS) | $(GREP_EW)
 	@echo -e "\033[3;35mElaborated $(TOP)\033[0m"
 	@sha256sum ${SHA_ARGS} > build/build_$(TOP)
+
+.PHONY: __ENV_BUILD__
+__ENV_BUILD__:
+	@make -s clean
+	@make -s __COMPILE__
+	@make -s __ELABORATE__
 
 .PHONY: common_sim_checks
 common_sim_checks:
@@ -269,9 +277,9 @@ verible_lint:
 	@$(eval list := $(shell find -name "*.v" -o -name "*.sv"))
 	@$(foreach file, $(list), verible-verilog-lint $(file) >> ___LINT_ERROR 2>&1 || true;)
 
-
 .PHONY: lint
 lint:
 	@make -s verible_lint
+	@make -s __COMPILE__
 	@cat ___LINT_ERROR
 	@rm -rf ___LINT_ERROR
