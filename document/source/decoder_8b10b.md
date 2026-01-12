@@ -12,7 +12,7 @@
  code is a recognized valid code.
 
 <br>**This file is part of squared-studio : hardware**
- Copyright (c) 2026 squared-studio
+<br>**Copyright (c) 2026 squared-studio**
 <br>**Licensed under the MIT License**
 <br>**See LICENSE file in the repository root for full license information**
 
