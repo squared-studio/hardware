@@ -12,7 +12,7 @@
  code is a recognized valid code.
 
 <br>**This file is part of squared-studio : hardware**
-<br>**Copyright (c) 2025 squared-studio**
+ Copyright (c) 2026 squared-studio
 <br>**Licensed under the MIT License**
 <br>**See LICENSE file in the repository root for full license information**
 
@@ -23,7 +23,7 @@
 ## Ports
 |Name|Direction|Type|Dimension|Description|
 |-|-|-|-|-|
-|data_i|input|logic [9:0]||10-bit input data to be decoded (8b/10b encoded symbol)|
-|data_o|output|logic [7:0]||8-bit decoded output data|
-|k_char_o|output|logic [7:0]||control character flasg: '1' if data_o is K char, '0' otherwise|
-|valid_o|output|logic||Output validity flag: '1' if data_i is a valid 8b/10b code, '0' otherwise|
+|data_i|input|logic [9:0]|| 10-bit input data to be decoded (8b/10b encoded symbol)|
+|data_o|output|logic [7:0]|| 8-bit decoded output data|
+|k_char_o|output|logic [7:0]|| control character flasg: '1' if data_o is K char, '0' otherwise|
+|valid_o|output|logic|| Output validity flag: '1' if data_i is a valid 8b/10b code, '0' otherwise|

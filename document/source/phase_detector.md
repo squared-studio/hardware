@@ -8,7 +8,7 @@
 ## Description
  Write a markdown documentation for this systemverilog module:
 <br>**This file is part of squared-studio : hardware**
-<br>**Copyright (c) 2025 squared-studio**
+ Copyright (c) 2026 squared-studio
 <br>**Licensed under the MIT License**
 <br>**See LICENSE file in the repository root for full license information**
 
