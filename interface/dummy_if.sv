@@ -4,6 +4,6 @@
 // Licensed under the MIT License
 // See LICENSE file in the repository root for full license information
 
-interface dummy_intf;
-  
+interface dummy_if;
+
 endinterface

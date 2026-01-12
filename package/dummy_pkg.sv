@@ -5,5 +5,5 @@
 // See LICENSE file in the repository root for full license information
 
 package dummy_pkg;
-  
+
 endpackage
