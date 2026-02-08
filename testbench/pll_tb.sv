@@ -103,14 +103,18 @@ module pll_tb;
     real fout_exp;
     real fout_got;
     real deviation;
-    void'(std::randomize(
-        ref_div_i, fb_div_i
-    ) with {
-      ref_div_i > 0;
-      fb_div_i > 0;
-      (ref_div_i) <= (100 * fb_div_i);
-      (100 * ref_div_i) >= (fb_div_i);
-    });
+    if (!std::randomize(
+            ref_div_i, fb_div_i
+        ) with {
+          ref_div_i > 0;
+          fb_div_i > 0;
+          (ref_div_i) <= (100 * fb_div_i);
+          (100 * ref_div_i) >= (fb_div_i);
+        }) begin
+      $display("\033[1;31mERROR: Randomization failed\033[0m");
+      test_passed = 0;
+      return;
+    end
     $display("ref_div_i:%0d\033[20Gfb_div_i:%0d\033[40GFout:%0.3f MHz", ref_div_i, fb_div_i,
              (RefFreq * fb_div_i) / ref_div_i / 1e6);
     do #10ns; while (!locked_o);
