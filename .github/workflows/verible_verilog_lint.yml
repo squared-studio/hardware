@@ -8,26 +8,15 @@ jobs:
   Verible_Verilog_Lint:
     runs-on: [make, verible]
 
-    defaults:
-      run:
-        shell: bash
-
-    env:
-      # Prevents Git Bash from mangling Windows paths into broken Unix paths
-      MSYS_NO_PATHCONV: 1
-
     steps:
       - uses: actions/checkout@v4
 
       - name: Lint
-        run: make verible_lint
+        shell: bash
+        run: |
+          make verible_lint
 
       - name: Fail if Lint Issue
-        # Simplified logic: checks if file exists and has size > 0
+        shell: bash
         run: |
-          if [ -s ___LINT_ERROR ]; then
-            echo "Linting errors found!"
-            exit 1
-          else
-            exit 0
-          fi
+          [[ -s ___LINT_ERROR ]] && exit 1 || exit 0
