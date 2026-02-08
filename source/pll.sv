@@ -185,7 +185,7 @@ module pll #(
       if (half_timeperiod < target_half_timeperiod)
         half_timeperiod = half_timeperiod * 0.97 + 0.03 * target_half_timeperiod + 1ps;
       else half_timeperiod = half_timeperiod * 0.97 + 0.03 * target_half_timeperiod - 1ps;
-      if (((half_timeperiod - target_half_timeperiod) > -10ps) && ((half_timeperiod - target_half_timeperiod) < 10ps))
+      if (((half_timeperiod - target_half_timeperiod) > -1ps) && ((half_timeperiod - target_half_timeperiod) < 1ps))
         internal_lock = '1;
       else internal_lock = '0;
     end

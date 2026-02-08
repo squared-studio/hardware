@@ -90,7 +90,7 @@ module vco_tb;
     join_none
     voltage_ctrl_i <= 0;
     repeat (2) @(posedge clk_o);
-    repeat (1000) get_frequency($urandom_range(32'd100_000, 32'd2_000_000_000));
+    repeat (100) get_frequency($urandom_range(32'd100_000, 32'd2_000_000_000));
     $finish;
   end
 

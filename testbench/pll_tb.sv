@@ -116,23 +116,21 @@ module pll_tb;
     do #10ns; while (!locked_o);
     @(posedge clk_o);
     tick_old = $realtime;
-    repeat (100) @(posedge clk_o);
+    repeat (10000) @(posedge clk_o);
     tick_new = $realtime;
-    average_timeperiod = (tick_new - tick_old) / 100;
+    average_timeperiod = (tick_new - tick_old) / 10000;
     fout_exp = (RefFreq * fb_div_i) / ref_div_i;
     fout_got = 1s / average_timeperiod;
     deviation = 100 * (fout_got - fout_exp) / fout_exp;
     if (deviation < 0) deviation = -deviation;
     $display("Measured Fout: %0.3f MHz\033[40GTime Period: %0t", 1us / average_timeperiod,
              average_timeperiod);
-    $display("Deviation: %0.3f%%\n\n", deviation);
 
-
-    
-    if (deviation > 5) begin
-      $display("\033[1;31mERROR: Deviation exceeds 5%%\033[0m");
+    if (deviation > 1) begin
+      $display("\033[1;31mERROR: Deviation exceeds acceptable limit\033[0m");
       test_passed = 0;
     end
+    $display("Deviation: %0.3f%%\n\n", deviation);
   endtask
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,8 +143,8 @@ module pll_tb;
 
   initial begin  // main initial
 
-    $dumpfile("pll_tb.vcd");
-    $dumpvars(0, pll_tb);
+    // $dumpfile("pll_tb.vcd");
+    // $dumpvars(0, pll_tb);
     $timeformat(-9, 2, " ns", 20);
 
     test_passed = 1;

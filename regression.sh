@@ -31,6 +31,8 @@ echo -e "\033[1;32mDone!\033[0m ($time_diff seconds)"
 ################################################################################
 
 ci_simulate clk_div_tb default
+ci_simulate vco_tb default
+ci_simulate pll_tb default
 
 ################################################################################
 # COLLECT & PRINT
