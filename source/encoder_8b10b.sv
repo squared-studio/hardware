@@ -571,8 +571,8 @@ module encoder_8b10b (
       10'b11111101_1_1: {data_o, is_legal_o, running_disparity_o} = 12'b0100010111_1_0;  // K29.7 +
       10'b11111110_1_0: {data_o, is_legal_o, running_disparity_o} = 12'b0111101000_1_1;  // K30.7 -
       10'b11111110_1_1: {data_o, is_legal_o, running_disparity_o} = 12'b1000010111_1_0;  // K30.7 +
-      default:
-      {data_o, is_legal_o, running_disparity_o} = {11'b0000000000_0, running_disparity_i};  // ERROR
+      default:  // ERROR
+      {data_o, is_legal_o, running_disparity_o} = {11'b0000000000_0, running_disparity_i};
     endcase
   end
 

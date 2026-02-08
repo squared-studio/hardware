@@ -1,9 +1,9 @@
-# phase_detector (module)
+# pll (module)
 
 ### Author : Foez Ahmed (foez.official@gmail.com)
 
 ## TOP IO
-<img src="./phase_detector_top.svg">
+<img src="./pll_top.svg">
 
 ## Description
 <br>**This file is part of squared-studio : hardware**
@@ -14,12 +14,15 @@
 ## Parameters
 |Name|Type|Dimension|Default Value|Description|
 |-|-|-|-|-|
+|REF_DEV_WIDTH|int||4||
+|FB_DIV_WIDTH|int||8||
 
 ## Ports
 |Name|Direction|Type|Dimension|Description|
 |-|-|-|-|-|
-|arst_ni|input|logic||Asynchronous reset, active low|
-|clk_ref_i|input|logic||Reference clock input|
-|clk_pll_i|input|logic||PLL clock input|
-|freq_incr_o|output|logic||Output signal indicating frequency increase needed|
-|freq_decr_o|output|logic||Output signal indicating frequency decrease needed|
+|arst_ni|input|logic|||
+|clk_ref_i|input|logic|||
+|ref_div_i|input|logic [REF_DEV_WIDTH-1:0]|||
+|fb_div_i|input|logic [ FB_DIV_WIDTH-1:0]|||
+|clk_o|output|logic|||
+|locked_o|output|logic|||

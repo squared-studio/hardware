@@ -1,4 +1,3 @@
-// Write a markdown documentation for this systemverilog module:
 // Author : Foez Ahmed (foez.official@gmail.com)
 // This file is part of squared-studio : hardware
 // Copyright (c) 2026 squared-studio
@@ -11,44 +10,38 @@ module pll #(
 ) (
     input  logic                     arst_ni,
     input  logic                     clk_ref_i,
-    input  logic [REF_DEV_WIDTH-1:0] refdiv_i,
-    input  logic [ FB_DIV_WIDTH-1:0] fbdiv_i,
+    input  logic [REF_DEV_WIDTH-1:0] ref_div_i,
+    input  logic [ FB_DIV_WIDTH-1:0] fb_div_i,
     output logic                     clk_o,
     output logic                     locked_o
 );
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  //-LOCALPARAMS GENERATED
-  //////////////////////////////////////////////////////////////////////////////////////////////////
+`ifdef USE_RTL_BASED_PLL_MODEL
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  //-TYPEDEFS
-  //////////////////////////////////////////////////////////////////////////////////////////////////
+  localparam int VCORES = 25;
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  //-SIGNALS
-  //////////////////////////////////////////////////////////////////////////////////////////////////
+  logic [REF_DEV_WIDTH-1:0] sampled_refdiv;
+  logic [FB_DIV_WIDTH-1:0] sampled_fbdiv;
 
-  logic [REF_DEV_WIDTH-1:0] sampled_refdiv;  // Sampled reference divider
-  logic [FB_DIV_WIDTH-1:0] sampled_fbdiv;  // Sampled feedback divider
+  logic divided_ref_clk;
+  logic divided_vco_clk;
 
-  logic divided_ref_clk;  // Divided reference clock
-  logic divided_vco_clk;  // Divided VCO clock
+  logic [VCORES:0] voltage_ctrl;
+  logic [VCORES:0] voltage_ctrl_next;
+  logic [VCORES:0] delta_voltage;
 
-  logic [19:0] voltage_ctrl;  // Control voltage input for VCO
+  logic clk_vco;
 
-  logic clk_vco;  // Clock output from VCO
+  logic freq_incr;
+  logic freq_decr;
 
-  logic freq_incr;  // Frequency increase signal from phase detector
-  logic freq_decr;  // Frequency decrease signal from phase detector
+  logic [31:0] stable_count;
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  //-ASSIGNMENTS
-  //////////////////////////////////////////////////////////////////////////////////////////////////
+  assign voltage_ctrl_next = voltage_ctrl + delta_voltage;
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  //-RTLS
-  //////////////////////////////////////////////////////////////////////////////////////////////////
+  assign clk_o = clk_vco;
+
+  assign locked_o = (stable_count >= 'h8_0000);
 
   clk_div #(
       .DIV_WIDTH(REF_DEV_WIDTH)
@@ -79,25 +72,17 @@ module pll #(
   vco #(
       .MIN_FREQ_HZ    (100E3),
       .MAX_FREQ_HZ    (10E9),
-      .RESOLUTION_BITS(20)
+      .RESOLUTION_BITS(VCORES)
   ) u_vco (
-      .voltage_ctrl_i(voltage_ctrl),
+      .voltage_ctrl_i(voltage_ctrl[VCORES-1:0]),
       .clk_o(clk_vco)
   );
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  //-METHODS
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  //-SEQUENTIALS
-  //////////////////////////////////////////////////////////////////////////////////////////////////
 
   always_ff @(posedge clk_ref_i or negedge arst_ni) begin
     if (~arst_ni) begin
       sampled_refdiv <= 0;
     end else begin
-      sampled_refdiv <= refdiv_i;
+      sampled_refdiv <= ref_div_i;
     end
   end
 
@@ -105,27 +90,113 @@ module pll #(
     if (~arst_ni) begin
       sampled_fbdiv <= 0;
     end else begin
-      sampled_fbdiv <= fbdiv_i;
+      sampled_fbdiv <= fb_div_i;
     end
   end
 
-  always #10ps begin
+  always #1ps begin
     if (~arst_ni) begin
-      voltage_ctrl <= '0;
+      delta_voltage <= '0;
+      voltage_ctrl  <= '0;
+      stable_count  <= '0;
     end else begin
-      voltage_ctrl <= voltage_ctrl;
-      case ({
-        freq_incr, freq_decr
-      })
-        2'b01:   if (voltage_ctrl != 20'h0_0000) voltage_ctrl <= voltage_ctrl - 1;
-        2'b10:   if (voltage_ctrl != 20'hF_FFFF) voltage_ctrl <= voltage_ctrl + 1;
-        default: voltage_ctrl <= voltage_ctrl;
-      endcase
+      if (delta_voltage[VCORES] == 0) begin
+        if (freq_incr) begin
+          if (signed'(delta_voltage) < 128) delta_voltage <= delta_voltage + 1;
+        end else if (freq_decr) begin
+          delta_voltage <= -1;
+        end else begin
+          delta_voltage <= '0;
+        end
+      end else begin
+        if (freq_decr) begin
+          if (signed'(delta_voltage) > -128) delta_voltage <= delta_voltage - 1;
+        end else if (freq_incr) begin
+          delta_voltage <= 1;
+        end else begin
+          delta_voltage <= '0;
+        end
+      end
+      if (voltage_ctrl_next[VCORES]) begin
+        voltage_ctrl  <= voltage_ctrl;
+        delta_voltage <= '0;
+      end else begin
+        voltage_ctrl <= voltage_ctrl + delta_voltage;
+      end
+      if (signed'(delta_voltage) > -10 && signed'(delta_voltage) < 10) begin
+        if (stable_count < 'hF_FFFF) stable_count <= stable_count + 1;
+      end else begin
+        stable_count <= '0;
+      end
     end
   end
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  //-INITIAL CHECKS
-  //////////////////////////////////////////////////////////////////////////////////////////////////
+`else
+
+  logic    [REF_DEV_WIDTH-1:0] refdiv_q;
+  logic    [ FB_DIV_WIDTH-1:0] fbdiv_q;
+
+  logic                        stable;
+
+  realtime                     ref_clk_tick = 0;
+  realtime                     timeperiod = 1us;
+
+  logic                        internal_lock;
+  logic    [             15:0] lock_array;
+
+  always_ff @(posedge clk_ref_i or negedge arst_ni) begin
+    if (~arst_ni) begin
+      refdiv_q <= '0;
+      fbdiv_q  <= '0;
+    end else begin
+      refdiv_q <= ref_div_i;
+      fbdiv_q  <= fb_div_i;
+    end
+  end
+
+  always_comb stable = arst_ni & (refdiv_q == ref_div_i) & (fbdiv_q == fb_div_i);
+
+  always_ff @(posedge clk_o or negedge stable) begin
+    if (~stable) begin
+      lock_array <= '0;
+    end else begin
+      lock_array <= {lock_array[14:0], internal_lock};
+    end
+  end
+
+  always_comb locked_o = lock_array[15];
+
+  always @(clk_ref_i or negedge arst_ni) begin
+    if (~arst_ni) begin
+      timeperiod = 1us;
+      internal_lock = '0;
+    end else begin
+      realtime target_timeperiod;
+      target_timeperiod = $realtime - ref_clk_tick;
+      if (ref_div_i) target_timeperiod = target_timeperiod * unsigned'(ref_div_i);
+      if (fb_div_i) target_timeperiod = target_timeperiod / unsigned'(fb_div_i);
+      if (target_timeperiod > 500us) target_timeperiod = 500us;
+      if (target_timeperiod < 50ps) target_timeperiod = 50ps;
+      if (timeperiod < target_timeperiod)
+        timeperiod = timeperiod * 0.97 + 0.03 * target_timeperiod + 1ps;
+      else timeperiod = timeperiod * 0.97 + 0.03 * target_timeperiod - 1ps;
+      if (((timeperiod - target_timeperiod) > -10ps) && ((timeperiod - target_timeperiod) < 10ps))
+        internal_lock = '1;
+      else internal_lock = '0;
+    end
+    ref_clk_tick = $realtime;
+  end
+
+  initial begin
+    clk_o <= '0;
+    forever begin
+      if (arst_ni) clk_o <= '1;
+      #(timeperiod);
+      clk_o <= '0;
+      #(timeperiod);
+    end
+  end
+
+`endif
 
 endmodule

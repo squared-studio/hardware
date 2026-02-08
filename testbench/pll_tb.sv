@@ -11,8 +11,8 @@ module pll_tb;
   //-LOCALPARAMS
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  localparam int REF_DEV_WIDTH = 4;
-  localparam int FB_DIV_WIDTH = 8;
+  localparam int RefDivWidth = 8;
+  localparam int FbDivWidth = 12;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   //-TYPEDEFS
@@ -23,12 +23,12 @@ module pll_tb;
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-  logic                     arst_ni;
-  logic                     clk_ref_i;
-  logic [REF_DEV_WIDTH-1:0] refdiv_i;
-  logic [ FB_DIV_WIDTH-1:0] fbdiv_i;
-  logic                     clk_o;
-  logic                     locked_o;
+  logic                   arst_ni;
+  logic                   clk_ref_i;
+  logic [RefDivWidth-1:0] ref_div_i;
+  logic [ FbDivWidth-1:0] fb_div_i;
+  logic                   clk_o;
+  logic                   locked_o;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   //-VARIABLES
@@ -51,13 +51,13 @@ module pll_tb;
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   pll #(
-      .REF_DEV_WIDTH(REF_DEV_WIDTH),
-      .FB_DIV_WIDTH (FB_DIV_WIDTH)
+      .REF_DEV_WIDTH(RefDivWidth),
+      .FB_DIV_WIDTH (FbDivWidth)
   ) u_dut (
       .arst_ni  (arst_ni),
       .clk_ref_i(clk_ref_i),
-      .refdiv_i (refdiv_i),
-      .fbdiv_i  (fbdiv_i),
+      .ref_div_i(ref_div_i),
+      .fb_div_i (fb_div_i),
       .clk_o    (clk_o),
       .locked_o (locked_o)
   );
@@ -70,8 +70,8 @@ module pll_tb;
     #100ns;
     arst_ni   <= 0;
     clk_ref_i <= 0;
-    refdiv_i  <= 0;
-    fbdiv_i   <= 0;
+    ref_div_i <= 0;
+    fb_div_i  <= 0;
     #100ns;
     arst_ni <= 1;
     #100ns;
@@ -106,19 +106,19 @@ module pll_tb;
     start_clock();
 
     #10us;
-    
-    refdiv_i <= 4'd2;
+
+    ref_div_i <= 'd2;
 
     #10us;
-    
-    fbdiv_i <= 8'd4;
+
+    fb_div_i <= 'd4;
 
     #10us;
-    
-    refdiv_i <= 4'd8;
-    fbdiv_i <= 8'd200;
 
-    #10us;
+    ref_div_i <= 'd8;
+    fb_div_i  <= 'd400;
+
+    #20us;
 
     $finish;
 

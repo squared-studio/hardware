@@ -1,4 +1,3 @@
-// Write a markdown documentation for this systemverilog module:
 // Author : Foez Ahmed (foez.official@gmail.com)
 // This file is part of squared-studio : hardware
 // Copyright (c) 2026 squared-studio
