@@ -20,5 +20,6 @@ jobs:
     - name: Fail if Copyright Issue
       shell: bash
       run: |
+        touch ___temp
         cat ___temp
         [[ -s ___temp ]] && exit 1 || exit 0
