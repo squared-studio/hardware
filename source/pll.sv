@@ -4,6 +4,11 @@
 // Licensed under the MIT License
 // See LICENSE file in the repository root for full license information
 
+// `define USE_RTL_BASED_PLL_MODEL 0
+
+// MINIMUM FREQUENCY = 1 MHz
+// MAXIMUM FREQUENCY = 10 GHz
+
 module pll #(
     parameter int REF_DEV_WIDTH = 4,
     parameter int FB_DIV_WIDTH  = 8
@@ -18,7 +23,7 @@ module pll #(
 
 `ifdef USE_RTL_BASED_PLL_MODEL
 
-  localparam int VCORES = 25;
+  localparam int VcoRes = 25;
 
   logic [REF_DEV_WIDTH-1:0] sampled_refdiv;
   logic [FB_DIV_WIDTH-1:0] sampled_fbdiv;
@@ -26,9 +31,9 @@ module pll #(
   logic divided_ref_clk;
   logic divided_vco_clk;
 
-  logic [VCORES:0] voltage_ctrl;
-  logic [VCORES:0] voltage_ctrl_next;
-  logic [VCORES:0] delta_voltage;
+  logic [VcoRes:0] voltage_ctrl;
+  logic [VcoRes:0] voltage_ctrl_next;
+  logic [VcoRes:0] delta_voltage;
 
   logic clk_vco;
 
@@ -70,11 +75,11 @@ module pll #(
   );
 
   vco #(
-      .MIN_FREQ_HZ    (100E3),
+      .MIN_FREQ_HZ    (1E6),
       .MAX_FREQ_HZ    (10E9),
-      .RESOLUTION_BITS(VCORES)
+      .RESOLUTION_BITS(VcoRes)
   ) u_vco (
-      .voltage_ctrl_i(voltage_ctrl[VCORES-1:0]),
+      .voltage_ctrl_i(voltage_ctrl[VcoRes-1:0]),
       .clk_o(clk_vco)
   );
 
@@ -100,7 +105,7 @@ module pll #(
       voltage_ctrl  <= '0;
       stable_count  <= '0;
     end else begin
-      if (delta_voltage[VCORES] == 0) begin
+      if (delta_voltage[VcoRes] == 0) begin
         if (freq_incr) begin
           if (signed'(delta_voltage) < 128) delta_voltage <= delta_voltage + 1;
         end else if (freq_decr) begin
@@ -117,7 +122,7 @@ module pll #(
           delta_voltage <= '0;
         end
       end
-      if (voltage_ctrl_next[VCORES]) begin
+      if (voltage_ctrl_next[VcoRes]) begin
         voltage_ctrl  <= voltage_ctrl;
         delta_voltage <= '0;
       end else begin
@@ -139,7 +144,7 @@ module pll #(
   logic                        stable;
 
   realtime                     ref_clk_tick = 0;
-  realtime                     timeperiod = 1us;
+  realtime                     half_timeperiod = 500ns;
 
   logic                        internal_lock;
   logic    [             15:0] lock_array;
@@ -168,19 +173,19 @@ module pll #(
 
   always @(clk_ref_i or negedge arst_ni) begin
     if (~arst_ni) begin
-      timeperiod = 1us;
-      internal_lock = '0;
+      half_timeperiod = 500ns;
+      internal_lock   = '0;
     end else begin
-      realtime target_timeperiod;
-      target_timeperiod = $realtime - ref_clk_tick;
-      if (ref_div_i) target_timeperiod = target_timeperiod * unsigned'(ref_div_i);
-      if (fb_div_i) target_timeperiod = target_timeperiod / unsigned'(fb_div_i);
-      if (target_timeperiod > 500us) target_timeperiod = 500us;
-      if (target_timeperiod < 50ps) target_timeperiod = 50ps;
-      if (timeperiod < target_timeperiod)
-        timeperiod = timeperiod * 0.97 + 0.03 * target_timeperiod + 1ps;
-      else timeperiod = timeperiod * 0.97 + 0.03 * target_timeperiod - 1ps;
-      if (((timeperiod - target_timeperiod) > -10ps) && ((timeperiod - target_timeperiod) < 10ps))
+      realtime target_half_timeperiod;
+      target_half_timeperiod = $realtime - ref_clk_tick;
+      if (ref_div_i) target_half_timeperiod = target_half_timeperiod * unsigned'(ref_div_i);
+      if (fb_div_i) target_half_timeperiod = target_half_timeperiod / unsigned'(fb_div_i);
+      if (target_half_timeperiod > 500ns) target_half_timeperiod = 500ns;
+      if (target_half_timeperiod < 50ps) target_half_timeperiod = 50ps;
+      if (half_timeperiod < target_half_timeperiod)
+        half_timeperiod = half_timeperiod * 0.97 + 0.03 * target_half_timeperiod + 1ps;
+      else half_timeperiod = half_timeperiod * 0.97 + 0.03 * target_half_timeperiod - 1ps;
+      if (((half_timeperiod - target_half_timeperiod) > -10ps) && ((half_timeperiod - target_half_timeperiod) < 10ps))
         internal_lock = '1;
       else internal_lock = '0;
     end
@@ -191,9 +196,9 @@ module pll #(
     clk_o <= '0;
     forever begin
       if (arst_ni) clk_o <= '1;
-      #(timeperiod);
+      #(half_timeperiod);
       clk_o <= '0;
-      #(timeperiod);
+      #(half_timeperiod);
     end
   end
 

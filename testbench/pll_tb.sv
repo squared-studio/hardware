@@ -14,6 +14,11 @@ module pll_tb;
   localparam int RefDivWidth = 8;
   localparam int FbDivWidth = 12;
 
+  localparam real RefFreq = 100e6;  // 100 MHz
+
+  localparam real MinOutFreq = 1e6;  // 1 MHz
+  localparam real MaxOutFreq = 10e9;  // 10 GHz
+
   //////////////////////////////////////////////////////////////////////////////////////////////////
   //-TYPEDEFS
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,6 +38,8 @@ module pll_tb;
   //////////////////////////////////////////////////////////////////////////////////////////////////
   //-VARIABLES
   //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  bit                     test_passed;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   //-INTERFACES
@@ -89,6 +96,45 @@ module pll_tb;
     @(posedge clk_ref_i);
   endtask
 
+  task static rand_config();
+    realtime tick_old;
+    realtime tick_new;
+    realtime average_timeperiod;
+    real fout_exp;
+    real fout_got;
+    real deviation;
+    void'(std::randomize(
+        ref_div_i, fb_div_i
+    ) with {
+      ref_div_i > 0;
+      fb_div_i > 0;
+      (ref_div_i) <= (100 * fb_div_i);
+      (100 * ref_div_i) >= (fb_div_i);
+    });
+    $display("ref_div_i:%0d\033[20Gfb_div_i:%0d\033[40GFout:%0.3f MHz", ref_div_i, fb_div_i,
+             (RefFreq * fb_div_i) / ref_div_i / 1e6);
+    do #10ns; while (!locked_o);
+    @(posedge clk_o);
+    tick_old = $realtime;
+    repeat (100) @(posedge clk_o);
+    tick_new = $realtime;
+    average_timeperiod = (tick_new - tick_old) / 100;
+    fout_exp = (RefFreq * fb_div_i) / ref_div_i;
+    fout_got = 1s / average_timeperiod;
+    deviation = 100 * (fout_got - fout_exp) / fout_exp;
+    if (deviation < 0) deviation = -deviation;
+    $display("Measured Fout: %0.3f MHz\033[40GTime Period: %0t", 1us / average_timeperiod,
+             average_timeperiod);
+    $display("Deviation: %0.3f%%\n\n", deviation);
+
+
+    
+    if (deviation > 5) begin
+      $display("\033[1;31mERROR: Deviation exceeds 5%%\033[0m");
+      test_passed = 0;
+    end
+  endtask
+
   //////////////////////////////////////////////////////////////////////////////////////////////////
   //-SEQUENTIALS
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,24 +147,17 @@ module pll_tb;
 
     $dumpfile("pll_tb.vcd");
     $dumpvars(0, pll_tb);
+    $timeformat(-9, 2, " ns", 20);
+
+    test_passed = 1;
 
     apply_reset();
     start_clock();
 
-    #10us;
+    repeat (100) rand_config();
 
-    ref_div_i <= 'd2;
-
-    #10us;
-
-    fb_div_i <= 'd4;
-
-    #10us;
-
-    ref_div_i <= 'd8;
-    fb_div_i  <= 'd400;
-
-    #20us;
+    if (test_passed) $display("\033[1;32m************** TEST PASSED **************\033[0m");
+    else $display("\033[1;31m************** TEST FAILED **************\033[0m");
 
     $finish;
 
