@@ -22,6 +22,6 @@ jobs:
       - name: Fail if Simulation Contains Fails
         shell: bash
         run: |
-          touch temp_ci_issues
-          cat temp_ci_issues
-          [[ -s temp_ci_issues ]] && exit 1 || exit 0
+          touch ___ci_issues
+          cat ___ci_issues
+          [[ -s ___ci_issues ]] && exit 1 || exit 0

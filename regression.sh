@@ -35,15 +35,25 @@ ci_simulate vco_tb default
 ci_simulate pll_tb default
 
 ################################################################################
+# Double Check TEST PASSED Exists
+################################################################################
+
+for file in ./log/*.txt; do
+  if ! grep -q "TEST PASSED" "$file" && ! grep -q "TEST FAILED" "$file"; then
+    echo -e "\033[1;31mERROR:\033[0m 'PASSED/FAILED' not found in $file" >> "$file"
+  fi
+done
+
+################################################################################
 # COLLECT & PRINT
 ################################################################################
 
-rm -rf temp_ci_issues
-touch temp_ci_issues
+rm -rf ___ci_issues
+touch ___ci_issues
 
-grep -s -r "TEST FAILED" ./log | sed "s/.*\.log://g" >> temp_ci_issues
-grep -s -r "ERROR:" ./log | sed "s/.*\.log://g" >> temp_ci_issues
-grep -s -r "Fatal:" ./log | sed "s/.*\.log://g" >> temp_ci_issues
+grep -s -r "TEST FAILED" ./log | sed "s/.*\.log://g" >> ___ci_issues
+grep -s -r "ERROR:" ./log | sed "s/.*\.log://g" >> ___ci_issues
+grep -s -r "Fatal:" ./log | sed "s/.*\.log://g" >> ___ci_issues
 
 echo -e ""
 echo -e "\033[1;36m___________________________ CI REPORT ___________________________\033[0m"

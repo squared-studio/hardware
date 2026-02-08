@@ -105,7 +105,6 @@ log:
 clean:
 	@echo -e "\033[3;35mCleaning build directory...\033[0m"
 	@rm -rf build
-	@rm -f temp_ci_issues
 	@echo -e "\033[3;35mCleaned build directory\033[0m"
 
 .PHONY: clean_full
@@ -114,6 +113,12 @@ clean_full:
 	@echo -e "\033[3;35mCleaning log directory...\033[0m"
 	@rm -rf log
 	@echo -e "\033[3;35mCleaned log directory\033[0m"
+	@echo -e "\033[3;35mCleaning coverage reports...\033[0m"
+	@rm -rf coverage_reports
+	@echo -e "\033[3;35mCleaned coverage reports\033[0m"
+	@echo -e "\033[3;35mCleaning temporary files...\033[0m"
+	@rm -f ___*
+	@echo -e "\033[3;35mCleaned temporary files\033[0m"
 
 .PHONY: CHK_BUILD
 CHK_BUILD:
