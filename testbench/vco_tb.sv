@@ -13,6 +13,8 @@ module vco_tb;
   logic [RESOLUTION_BITS-1:0] voltage_ctrl_i;
   logic                       clk_o;
 
+  bit                         test_passed;
+
   vco #(
       .MIN_FREQ_HZ    (MIN_FREQ_HZ),
       .MAX_FREQ_HZ    (MAX_FREQ_HZ),
@@ -34,9 +36,12 @@ module vco_tb;
 
   task static get_frequency(input real target_freq);
     real delta;
-    int  delta_int;
-    bit  freq_incr;
-    bit  freq_decr;
+    int delta_int;
+    bit freq_incr;
+    bit freq_decr;
+    realtime setup_begin;
+    realtime setup_done;
+    setup_begin = $realtime;
     do begin
       if (current_freq < target_freq) begin
         delta = target_freq - current_freq;
@@ -65,32 +70,43 @@ module vco_tb;
       end
       @(posedge clk_o);
     end while ((delta * 1000) > target_freq);
+    setup_done = $realtime;
     $display("Reached target frequency: %0.2f (%0.2f) Hz with control voltage: %0d", current_freq,
              target_freq, voltage_ctrl_i);
-    repeat (20) @(posedge clk_o);
+    $display("Setup Started at: %0t", setup_begin);
+    $display("Setup Done at: %0t", setup_done);
+    $display("\033[1;33mTime taken to reach target frequency: %0t\033[0m",
+             (setup_done - setup_begin));
+    if ((setup_done - setup_begin) > 21us) begin
+      $display("\033[1;31mSetup time exceeded 21 microseconds!\033[0m");
+      test_passed = 0;
+    end else begin
+      $display("\033[1;32mSetup time within acceptable limits.\033[0m");
+    end
+    $display("\n\n");
+    repeat (2) @(posedge clk_o);
   endtask
 
   initial begin
+    test_passed = 1;
     // $dumpfile("vco_tb.vcd");
     // $dumpvars(0, vco_tb);
+    $timeformat(-9, 0, " ns", 20);
     fork
       begin
-        int i;
         forever begin
           #1us;
-          i++;
-          $display("Time: %0d us", i);
+          $display("Time: %0t", $realtime);
         end
       end
-      // begin
-      //   #250us;
-      //   $display("Timeout reached");
-      //   $finish;
-      // end
     join_none
     voltage_ctrl_i <= 0;
     repeat (2) @(posedge clk_o);
     repeat (100) get_frequency($urandom_range(32'd100_000, 32'd2_000_000_000));
+
+    if (test_passed) $display("\033[1;32m************** TEST PASSED **************\033[0m");
+    else $display("\033[1;31m************** TEST FAILED **************\033[0m");
+
     $finish;
   end
 
