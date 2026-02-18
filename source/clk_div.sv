@@ -48,28 +48,26 @@ module clk_div #(
   //-SEQUENTIALS
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // This block implements the counter register.
-  always @(clk_i or negedge arst_ni) begin
-    // Asynchronous reset.
-    if (~arst_ni) begin
-      counter_q <= '0;
-    end else begin
-      // Update the counter with the next value.
-      counter_q <= counter_n;
-    end
-  end
+  // Dual-edge register for counter; captures next count every clock transition.
+  dual_edge_register #(
+      .WIDTH(DIV_WIDTH)
+  ) u_counter_reg (
+      .arst_ni(arst_ni),
+      .clk_i(clk_i),
+      .data_i(counter_n),
+      .en_i(1'b1),
+      .data_o(counter_q)
+  );
 
-  // This block implements the output clock toggle logic.
-  always @(clk_i or negedge arst_ni) begin
-    // Asynchronous reset.
-    if (~arst_ni) begin
-      clk_o <= '0;
-    end else begin
-      // If the toggle enable signal is high, toggle the output clock.
-      if (toggle_en) begin
-        clk_o <= ~clk_o;
-      end
-    end
-  end
+  // Dual-edge register for clk_o; toggles based on computed next-state.
+  dual_edge_register #(
+      .WIDTH(1)
+  ) u_clk_o_reg (
+      .arst_ni(arst_ni),
+      .clk_i(clk_i),
+      .data_i(~clk_o),
+      .en_i(toggle_en),
+      .data_o(clk_o)
+  );
 
 endmodule
