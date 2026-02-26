@@ -42,11 +42,11 @@ module pll #(
 
   logic [31:0] stable_count;
 
-  assign voltage_ctrl_next = voltage_ctrl + delta_voltage;
+  always_comb voltage_ctrl_next = voltage_ctrl + delta_voltage;
 
-  assign clk_o = clk_vco;
+  always_comb clk_o = clk_vco;
 
-  assign locked_o = (stable_count >= 'h8_0000);
+  always_comb locked_o = (stable_count >= 'h8_0000);
 
   clk_div #(
       .DIV_WIDTH(REF_DEV_WIDTH)

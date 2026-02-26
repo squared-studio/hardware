@@ -35,6 +35,6 @@ module vco #(
     next_tick_time = last_tick_time + (500ms / freq_hz);
   end
 
-  assign clk_o = clk;
+  always_comb clk_o = clk;
 
 endmodule
