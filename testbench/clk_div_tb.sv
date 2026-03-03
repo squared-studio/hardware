@@ -13,12 +13,16 @@ module clk_div_tb;
 
   parameter realtime TP = 10ns;
 
+  parameter int SAMPLE_CYCLES = 5;
+
   logic                 arst_ni;
   logic [DIV_WIDTH-1:0] div_i;
   logic                 clk_i;
   logic                 clk_o;
 
   bit                   test_passed;
+
+  int                   clk_o_count;
 
   covergroup div_coverage @(posedge clk_i iff arst_ni);
     div_cp: coverpoint div_i {bins div_bins[] = {[0 : $]};}
@@ -67,10 +71,23 @@ module clk_div_tb;
     test_passed = 0;
   end
 
-  initial begin
-    // $dumpfile("clk_div_tb.vcd");
-    // $dumpvars(0, clk_div_tb);
+  always @(clk_o) begin
+    clk_o_count++;
+  end
 
+  initial begin
+    int debug;
+    if (!$value$plusargs("DEBUG=%d", debug)) begin
+      $fatal(1, "\033[1;31mNO DEBUG FLAG PROVIDED!\033[0m");
+    end
+    if (debug) begin
+      $dumpfile("clk_div_tb.vcd");
+      $dumpvars(0, clk_div_tb);
+    end else begin
+      $display("\033[1;33mDEBUG MODE DISABLED. TO ENABLE, RUN WITH DEBUG=1\033[0m");
+    end
+
+    $timeformat(-9, 0, "ns", 6);
     test_passed = 1;
 
     apply_reset();
@@ -79,8 +96,32 @@ module clk_div_tb;
     @(posedge clk_o);
 
     while (u_div_cov.get_inst_coverage() < 100) begin
+      realtime measured_timeperiod;
+      real deviation;
+
+      @(posedge clk_i);
       div_i <= $urandom;
-      repeat (50) @(clk_i);
+
+      // let divider settle
+      repeat (2) @(posedge clk_o);
+
+      // Measure the time between 100 output clock edges to get an average period
+      measured_timeperiod = $realtime;
+      repeat (SAMPLE_CYCLES) @(posedge clk_o);
+      measured_timeperiod = $realtime - measured_timeperiod;
+      measured_timeperiod = measured_timeperiod / SAMPLE_CYCLES;
+
+      deviation = (TP * (div_i == 0 ? 1 : div_i)) / measured_timeperiod;
+      deviation = deviation - 1;
+
+      if (deviation > -0.02 && deviation < 0.02) begin
+      end else begin
+        $display("Division Failed for div_i=%0d [%0t]", div_i, $realtime);
+        $display("Measured Period: %0t, Expected Period: %0t\n", measured_timeperiod,
+                 TP * (div_i == 0 ? 1 : div_i));
+        test_passed = 0;
+      end
+
     end
 
     repeat (50) @(clk_i);

@@ -11,6 +11,18 @@ module dual_edge_register #(
     output logic [WIDTH-1:0] data_o  // data output
 );
 
+`ifdef SIMULATION
+
+  always @(clk_i or negedge arst_ni) begin
+    if (!arst_ni) begin
+      data_o <= '0;
+    end else if (en_i) begin
+      data_o <= data_i;
+    end
+  end
+
+`else
+
   logic [WIDTH-1:0] reg_pos;  // Register capturing data on the positive edge
   logic [WIDTH-1:0] reg_neg;  // Register capturing data on the negative edge
 
@@ -40,5 +52,7 @@ module dual_edge_register #(
       reg_neg <= reg_pos;
     end
   end
+
+`endif
 
 endmodule
