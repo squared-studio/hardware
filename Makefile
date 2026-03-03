@@ -36,8 +36,8 @@ SHA_ARGS += $$(find testbench/ -type f)
 GIT_UNAME := $(shell git config user.name)
 GIT_UMAIL := $(shell git config user.email)
 
-DBG ?= 0
-ifeq ($(DBG), 1)
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
 	XELAB_FLAGS += --debug all
 endif
 
@@ -163,6 +163,7 @@ __ENV_BUILD__:
 .PHONY: common_sim_checks
 common_sim_checks:
 	@echo "--testplusarg TEST=$(TEST)" > build/xsim_args
+	@echo "--testplusarg DEBUG=$(DEBUG)" >> build/xsim_args
 
 .PHONY: simulate
 simulate:

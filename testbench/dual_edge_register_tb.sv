@@ -32,6 +32,12 @@ module dual_edge_register_tb;
     end
   end
 
+  int dut_chng_cnt;
+  always @(data_o) dut_chng_cnt = dut_chng_cnt + 1;
+
+  int ref_chng_cnt;
+  always @(data_o_ref) ref_chng_cnt = ref_chng_cnt + 1;
+
   initial begin
 
     $timeformat(-9, 1, " ns", 0);
