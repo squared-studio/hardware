@@ -17,58 +17,44 @@ module phase_detector (
   //-SIGNALS
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  logic clk_ref_posedge;  // Internal signal to detect positive edge of reference clock
-  logic clk_ref_negedge;  // Internal signal to detect negative edge of reference clock
-  logic clk_pll_posedge;  // Internal signal to detect positive edge of PLL clock
-  logic clk_pll_negedge;  // Internal signal to detect negative edge of PLL clock
-  logic comb_arst_ni;  // Combinational asynchronous reset signal
+  logic clk_ref_q;
+  logic clk_pll_q;
+  logic clk_ref_qn;
+  logic clk_pll_qn;
+  logic comb_arst_ni;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   //-COMBINATIONALS
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // This assignment creates a combinational reset signal.  It's active low.
-  // The reset is asserted if arst_ni is low OR if both clocks (ref & pll) have a simultaneous edge (positive or negative)
-  // This is done to prevent metastability issues during simultaneous clock transitions near reset.
-  always_comb
-    comb_arst_ni = arst_ni & (~(
-                                (clk_ref_posedge & clk_pll_posedge) |
-                                (clk_ref_negedge & clk_pll_negedge)
-                              ));
+  always_comb comb_arst_ni = arst_ni & (clk_ref_qn | clk_pll_qn);
 
-  // If reference clock has a posedge or negedge.
-  always_comb freq_incr_o = clk_ref_posedge | clk_ref_negedge;
+  always_comb freq_incr_o = clk_ref_q & clk_pll_qn;
 
-  // If PLL clock has a posedge or negedge.
-  always_comb freq_decr_o = clk_pll_posedge | clk_pll_negedge;
+  always_comb freq_decr_o = clk_pll_q & clk_ref_qn;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   //-SEQUENTIALS
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // Macro definition to generate flip-flops to detect clock edges
-  `define PHASE_DETECTOR_FLIPFLOP_GENENRATOR(__CLK__, __EDGE__)                 \
-  always_ff @(``__EDGE__``edge clk_``__CLK__``_i or negedge comb_arst_ni) begin \
-    if (~comb_arst_ni) begin                                                    \
-      clk_``__CLK__``_``__EDGE__``edge <= '0;                                   \
-    end else begin                                                              \
-      clk_``__CLK__``_``__EDGE__``edge <= '1;                                   \
-    end                                                                         \
-  end                                                                           \
+  always_ff @(posedge clk_ref_i or negedge comb_arst_ni) begin
+    if (~comb_arst_ni) begin
+      clk_ref_q  <= '0;
+      clk_ref_qn <= '1;
+    end else begin
+      clk_ref_q  <= '1;
+      clk_ref_qn <= '0;
+    end
+  end
 
-  // Instantiate flip-flops for rising and falling edges of reference clock
-  `PHASE_DETECTOR_FLIPFLOP_GENENRATOR(ref, pos)
-
-  // Instantiate flip-flops for falling edges of reference clock
-  `PHASE_DETECTOR_FLIPFLOP_GENENRATOR(ref, neg)
-
-  // Instantiate flip-flops for rising edges of PLL clock
-  `PHASE_DETECTOR_FLIPFLOP_GENENRATOR(pll, pos)
-
-  // Instantiate flip-flops for falling edges of PLL clock
-  `PHASE_DETECTOR_FLIPFLOP_GENENRATOR(pll, neg)
-
-  // Undefine the macro
-  `undef PHASE_DETECTOR_FLIPFLOP_GENENRATOR
+  always_ff @(posedge clk_pll_i or negedge comb_arst_ni) begin
+    if (~comb_arst_ni) begin
+      clk_pll_q  <= '0;
+      clk_pll_qn <= '1;
+    end else begin
+      clk_pll_q  <= '1;
+      clk_pll_qn <= '0;
+    end
+  end
 
 endmodule
